@@ -1,0 +1,13 @@
+[src]
+exclude = [
+    ".venv",
+    "venv",
+    "/opt/venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    "alembic/versions"
+]
+
+[analysis]
+respect-type-ignore-comments = true

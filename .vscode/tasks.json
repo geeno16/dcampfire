@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Backend: Сбросить БД",
+      "type": "shell",
+      "command": "python -m src.common.dropdb_vstask",
+      "options": { "cwd": "/workspace/backend" },
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "shared",
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Backend: Запустить dev сервер",
+      "type": "shell",
+      "command": "python -m uvicorn src.main:app --reload --host 0.0.0.0 --port 8000",
+      "options": { "cwd": "/workspace/backend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "Backend: Запустить тесты",
+      "type": "shell",
+      "command": "pytest",
+      "options": { "cwd": "/workspace/backend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      }
+    }
+  ]
+}
