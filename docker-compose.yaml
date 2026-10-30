@@ -52,7 +52,10 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      - media_data:/workspace/backend/media
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  media_data:
