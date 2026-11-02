@@ -1,4 +1,3 @@
-from src.common.base_repository import BaseRepository
 from src.common.database import (
     Base,
     SessionDependency,
@@ -8,10 +7,11 @@ from src.common.database import (
     engine,
     get_session,
 )
+from src.common.repository import Repository
 
 __all__ = [
     "Base",
-    "BaseRepository",
+    "Repository",
     "SessionDependency",
     "create_database_if_not_exists",
     "create_tables",

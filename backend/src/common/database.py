@@ -24,7 +24,7 @@ _session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with _session_factory() as session:
+    async with _session_factory() as session, session.begin():
         yield session
 
 
@@ -66,6 +66,8 @@ async def create_database_if_not_exists() -> None:
 
 
 async def create_tables() -> None:
+    import src.common.model  # noqa: F401
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
