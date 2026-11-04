@@ -1,5 +1,6 @@
+import logging
 import os
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from typing import Annotated
 
 from fastapi import Depends
@@ -18,14 +19,43 @@ if _DATABASE_URL is None:
 
 engine = create_async_engine(_DATABASE_URL)
 
-_session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
+session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     engine, expire_on_commit=False
 )
 
 
+_AFTER_COMMIT = "after_commit"
+
+logger = logging.getLogger(__name__)
+
+
+def on_commit(
+    session: AsyncSession, callback: Callable[[], Awaitable[None]]
+) -> None:
+    session.info.setdefault(_AFTER_COMMIT, []).append(callback)
+
+
+def discard_after_commit(session: AsyncSession) -> None:
+    session.info.pop(_AFTER_COMMIT, None)
+
+
+async def run_after_commit(session: AsyncSession) -> None:
+    for callback in session.info.pop(_AFTER_COMMIT, []):
+        try:
+            await callback()
+        except Exception:
+            logger.exception("After-commit callback failed")
+
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with _session_factory() as session, session.begin():
-        yield session
+    async with session_factory() as session:
+        async with session.begin():
+            yield session
+        await run_after_commit(session)
+
+
+def get_session_factory() -> async_sessionmaker[AsyncSession]:
+    return session_factory
 
 
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]

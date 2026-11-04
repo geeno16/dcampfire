@@ -6,6 +6,9 @@ from src.email_code.model import EmailCode
 
 class EmailCodeRepository(Repository[EmailCode]):
     model = EmailCode
+    error_codes = {
+        "email_codes_user_id_fkey": "USER_NOT_FOUND",
+    }
 
     async def create(
         self,
@@ -14,12 +17,14 @@ class EmailCodeRepository(Repository[EmailCode]):
         code_hash: str,
         expires_at: datetime,
         attempts: int | Unset = UNSET,
+        sent_at: datetime | Unset = UNSET,
     ) -> EmailCode:
         return await self._create(
             user_id=user_id,
             code_hash=code_hash,
             expires_at=expires_at,
             attempts=attempts,
+            sent_at=sent_at,
         )
 
     async def read(
