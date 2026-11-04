@@ -36,6 +36,18 @@
         "panel": "dedicated",
         "reveal": "always"
       }
+    },
+    {
+      "label": "Backend: Пройти регистрацию",
+      "type": "shell",
+      "command": "python -m src.common.auth_flow_vstask",
+      "options": { "cwd": "/workspace/backend" },
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always",
+        "focus": true
+      }
     }
   ]
 }
