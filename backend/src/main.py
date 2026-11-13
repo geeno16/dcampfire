@@ -32,7 +32,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
 
-app = FastAPI(title="Dcampfire API", lifespan=lifespan)
+app = FastAPI(
+    title="Dcampfire API",
+    lifespan=lifespan,
+    generate_unique_id_function=lambda route: route.name,
+)
 register_exception_handlers(app)
 
 for router in (

@@ -5,3 +5,11 @@
 __pycache__/
 *.pyc
 backend/media/
+.gradle/
+build/
+local.properties
+*.jks
+*.keystore
+.kotlin/
+android/.idea/*
+!android/.idea/codeStyles/
