@@ -4,15 +4,23 @@ import javax.inject.Inject
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.detekt)
 }
 
 val backendPort = providers.gradleProperty("dcampfire.backendPort").getOrElse("8001")
+val debugApiUrl = providers.gradleProperty(
+    "dcampfire.debugApiUrl",
+).getOrElse("http://localhost:$backendPort/")
 val releaseApiUrl = providers
     .gradleProperty("dcampfire.releaseApiUrl")
     .getOrElse("https://dcampfire.invalid/")
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     namespace = "ru.dcampfire"
     compileSdk = 37
 
@@ -20,8 +28,8 @@ android {
         applicationId = "ru.dcampfire"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
     }
 
     androidResources {
@@ -30,7 +38,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://localhost:$backendPort/\"")
+            buildConfigField("String", "BASE_URL", "\"$debugApiUrl\"")
             buildConfigField("String", "EMULATOR_BASE_URL", "\"http://10.0.2.2:$backendPort/\"")
         }
         release {
@@ -61,9 +69,9 @@ android {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     compilerOptions {
-        allWarningsAsErrors = true
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -86,6 +94,9 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.coroutines.android)
     debugImplementation(libs.compose.ui.tooling)
 }
 

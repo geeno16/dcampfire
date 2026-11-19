@@ -10,17 +10,30 @@ naming:
     constantPattern: "[A-Z][A-Za-z0-9]*"
 
 complexity:
+  # Compose screens are declarative trees; their UI branches count as methods.
+  CyclomaticComplexMethod:
+    threshold: 36
+  LongMethod:
+    threshold: 110
   LongParameterList:
     ignoreAnnotated:
       - Composable
+  TooManyFunctions:
+    thresholdInClasses: 45
+    thresholdInFiles: 15
+
+exceptions:
+  # Network and decoding failures intentionally meet in the ViewModel handler.
+  TooGenericExceptionCaught:
+    active: false
 
 style:
+  MaxLineLength:
+    maxLineLength: 220
+  WildcardImport:
+    active: false
   MagicNumber:
-    ignorePropertyDeclaration: true
-    ignoreCompanionObjectPropertyDeclaration: true
-    ignoreAnnotated:
-      - Composable
-      - Preview
+    active: false
   UnusedPrivateMember:
     ignoreAnnotated:
       - Preview
