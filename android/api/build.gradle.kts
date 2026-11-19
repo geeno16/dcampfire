@@ -11,8 +11,14 @@ plugins {
     alias(libs.plugins.openapi.generator)
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
+    compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
 }
 
 abstract class FetchOpenApi : DefaultTask() {
@@ -61,14 +67,14 @@ val fetchOpenApi = tasks.register<FetchOpenApi>("fetchOpenApi") {
             .gradleProperty("dcampfire.openapiUrl")
             .orElse("http://localhost:8001/openapi.json"),
     )
-    schema.set(layout.buildDirectory.file("openapi/openapi.json"))
+    schema.set(layout.projectDirectory.file("openapi.json"))
     outputs.upToDateWhen { false }
 }
 
 val openApiGenerate = tasks.named<GenerateTask>("openApiGenerate") {
     generatorName.set("kotlin")
     library.set("jvm-retrofit2")
-    inputSpec.set(fetchOpenApi.flatMap { it.schema })
+    inputSpec.set(layout.projectDirectory.file("openapi.json").asFile.absolutePath)
     outputDir.set(layout.buildDirectory.dir("generated/openapi"))
     packageName.set("ru.dcampfire.api")
     cleanupOutput.set(true)
@@ -103,4 +109,6 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.retrofit.scalars)
     implementation(libs.okhttp.logging)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:5.5.1")
 }

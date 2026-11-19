@@ -1,0 +1,2239 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Dcampfire API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify-email": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Verify Email",
+        "operationId": "verify_email",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-code": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resend Code",
+        "operationId": "resend_code",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/config": {
+      "get": {
+        "tags": [
+          "Reference"
+        ],
+        "summary": "Get Config",
+        "operationId": "get_config",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/topics": {
+      "get": {
+        "tags": [
+          "Reference"
+        ],
+        "summary": "List Topics",
+        "operationId": "list_topics",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TopicRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Topics"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Get Profile",
+        "operationId": "get_profile",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Delete Account",
+        "operationId": "delete_account",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Update Profile",
+        "operationId": "update_profile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/password": {
+      "put": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Change Password",
+        "operationId": "change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/avatar": {
+      "put": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Upload Avatar",
+        "operationId": "upload_avatar",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_avatar"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Delete Avatar",
+        "operationId": "delete_avatar",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/topics": {
+      "put": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Set Topics",
+        "operationId": "set_topics",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTopicsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/media/avatars/{name}": {
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Get Avatar",
+        "operationId": "get_avatar",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/bonfires": {
+      "get": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "List My Bonfires",
+        "operationId": "list_my_bonfires",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BonfireCard"
+                  },
+                  "type": "array",
+                  "title": "Response List My Bonfires"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bonfires/recommended": {
+      "get": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "List Recommended",
+        "operationId": "list_recommended",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BonfireCard"
+                  },
+                  "title": "Response List Recommended"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires": {
+      "post": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "Create Bonfire",
+        "operationId": "create_bonfire",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BonfireCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BonfireDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}": {
+      "get": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "Get Bonfire",
+        "operationId": "get_bonfire",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BonfireDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "Update Bonfire",
+        "operationId": "update_bonfire",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BonfireUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BonfireDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Bonfire"
+        ],
+        "summary": "Delete Bonfire",
+        "operationId": "delete_bonfire",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/albums/lookup": {
+      "get": {
+        "tags": [
+          "Album"
+        ],
+        "summary": "Lookup Album",
+        "operationId": "lookup_album",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048,
+              "title": "Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlbumLookupResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}/members": {
+      "post": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "Join Bonfire",
+        "operationId": "join_bonfire",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BonfireDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}/members/{user_id}": {
+      "delete": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "Remove Member",
+        "operationId": "remove_member",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}/invitations": {
+      "post": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "Invite",
+        "operationId": "invite",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}/invitations/{user_id}": {
+      "delete": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "Cancel Invitation",
+        "operationId": "cancel_invitation",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/invitations": {
+      "get": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "List Invitations",
+        "operationId": "list_invitations",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InvitationRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Invitations"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/me/invitations/{bonfire_id}": {
+      "delete": {
+        "tags": [
+          "Membership"
+        ],
+        "summary": "Decline Invitation",
+        "operationId": "decline_invitation",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bonfires/{bonfire_id}/messages": {
+      "get": {
+        "tags": [
+          "Message"
+        ],
+        "summary": "List Messages",
+        "operationId": "list_messages",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 9223372036854775807,
+                  "minimum": 1,
+                  "format": "int64"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "name": "after_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 9223372036854775807,
+                  "minimum": 1,
+                  "format": "int64"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageRead"
+                  },
+                  "title": "Response List Messages"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "summary": "Send Message",
+        "operationId": "send_message",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bonfire_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 9223372036854775807,
+              "minimum": 1,
+              "format": "int64",
+              "title": "Bonfire Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendMessageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlbumLookupResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "AlbumLookupResponse"
+      },
+      "AlbumRead": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "title"
+        ],
+        "title": "AlbumRead"
+      },
+      "AuthResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileRead"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "profile"
+        ],
+        "title": "AuthResponse"
+      },
+      "Body_upload_avatar": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_avatar"
+      },
+      "BonfireCard": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "is_open": {
+            "type": "boolean",
+            "title": "Is Open"
+          },
+          "owner_id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Owner Id"
+          },
+          "members_count": {
+            "type": "integer",
+            "title": "Members Count"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicRead"
+            },
+            "type": "array",
+            "title": "Topics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "is_open",
+          "owner_id",
+          "members_count",
+          "topics"
+        ],
+        "title": "BonfireCard"
+      },
+      "BonfireCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 3,
+            "title": "Name"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "topic_ids": {
+            "items": {
+              "type": "integer",
+              "maximum": 32767.0,
+              "minimum": 1.0
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Topic Ids",
+            "default": []
+          },
+          "album_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Album Url"
+          },
+          "is_open": {
+            "type": "boolean",
+            "title": "Is Open",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "color"
+        ],
+        "title": "BonfireCreateRequest"
+      },
+      "BonfireDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "color": {
+            "type": "string",
+            "title": "Color"
+          },
+          "is_open": {
+            "type": "boolean",
+            "title": "Is Open"
+          },
+          "owner_id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Owner Id"
+          },
+          "members_count": {
+            "type": "integer",
+            "title": "Members Count"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicRead"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "album": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AlbumRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/MemberRead"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "invitations": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SentInvitationRead"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invitations"
+          },
+          "next_message_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Message At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "color",
+          "is_open",
+          "owner_id",
+          "members_count",
+          "topics",
+          "album",
+          "members",
+          "invitations",
+          "next_message_at"
+        ],
+        "title": "BonfireDetail"
+      },
+      "BonfireUpdateRequest": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "topic_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer",
+                  "maximum": 32767.0,
+                  "minimum": 1.0
+                },
+                "type": "array",
+                "maxItems": 5
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic Ids"
+          },
+          "album_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Album Url"
+          },
+          "is_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Open"
+          }
+        },
+        "type": "object",
+        "title": "BonfireUpdateRequest"
+      },
+      "ChangePasswordRequest": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePasswordRequest"
+      },
+      "ColorRead": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "hex": {
+            "type": "string",
+            "title": "Hex"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "hex"
+        ],
+        "title": "ColorRead"
+      },
+      "ConfigResponse": {
+        "properties": {
+          "limits": {
+            "$ref": "#/components/schemas/LimitsRead"
+          },
+          "colors": {
+            "items": {
+              "$ref": "#/components/schemas/ColorRead"
+            },
+            "type": "array",
+            "title": "Colors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "limits",
+          "colors"
+        ],
+        "title": "ConfigResponse"
+      },
+      "DeleteAccountRequest": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "DeleteAccountRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InvitationRead": {
+        "properties": {
+          "bonfire": {
+            "$ref": "#/components/schemas/BonfireCard"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/UserBrief"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bonfire",
+          "owner",
+          "created_at"
+        ],
+        "title": "InvitationRead"
+      },
+      "InviteRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 3,
+            "title": "Nickname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nickname"
+        ],
+        "title": "InviteRequest"
+      },
+      "LimitsRead": {
+        "properties": {
+          "nickname_min_length": {
+            "type": "integer",
+            "title": "Nickname Min Length"
+          },
+          "nickname_max_length": {
+            "type": "integer",
+            "title": "Nickname Max Length"
+          },
+          "password_min_length": {
+            "type": "integer",
+            "title": "Password Min Length"
+          },
+          "user_topics_max": {
+            "type": "integer",
+            "title": "User Topics Max"
+          },
+          "bonfire_topics_max": {
+            "type": "integer",
+            "title": "Bonfire Topics Max"
+          },
+          "bonfire_capacity": {
+            "type": "integer",
+            "title": "Bonfire Capacity"
+          },
+          "user_bonfires_max": {
+            "type": "integer",
+            "title": "User Bonfires Max"
+          },
+          "bonfire_name_min_length": {
+            "type": "integer",
+            "title": "Bonfire Name Min Length"
+          },
+          "bonfire_name_max_length": {
+            "type": "integer",
+            "title": "Bonfire Name Max Length"
+          },
+          "message_max_length": {
+            "type": "integer",
+            "title": "Message Max Length"
+          },
+          "message_pause_seconds": {
+            "type": "integer",
+            "title": "Message Pause Seconds"
+          },
+          "email_code_ttl_seconds": {
+            "type": "integer",
+            "title": "Email Code Ttl Seconds"
+          },
+          "email_code_max_attempts": {
+            "type": "integer",
+            "title": "Email Code Max Attempts"
+          },
+          "email_code_resend_cooldown_seconds": {
+            "type": "integer",
+            "title": "Email Code Resend Cooldown Seconds"
+          },
+          "avatar_max_bytes": {
+            "type": "integer",
+            "title": "Avatar Max Bytes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nickname_min_length",
+          "nickname_max_length",
+          "password_min_length",
+          "user_topics_max",
+          "bonfire_topics_max",
+          "bonfire_capacity",
+          "user_bonfires_max",
+          "bonfire_name_min_length",
+          "bonfire_name_max_length",
+          "message_max_length",
+          "message_pause_seconds",
+          "email_code_ttl_seconds",
+          "email_code_max_attempts",
+          "email_code_resend_cooldown_seconds",
+          "avatar_max_bytes"
+        ],
+        "title": "LimitsRead"
+      },
+      "LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MemberRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Joined At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nickname",
+          "avatar_url",
+          "joined_at"
+        ],
+        "title": "MemberRead"
+      },
+      "MessageRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "bonfire_id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Bonfire Id"
+          },
+          "author": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserBrief"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "bonfire_id",
+          "author",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageRead"
+      },
+      "ProfileRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicRead"
+            },
+            "type": "array",
+            "title": "Topics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nickname",
+          "email",
+          "avatar_url",
+          "topics"
+        ],
+        "title": "ProfileRead"
+      },
+      "RegisterRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 3,
+            "title": "Nickname"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "pd_consent": {
+            "type": "boolean",
+            "title": "Pd Consent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nickname",
+          "email",
+          "password",
+          "pd_consent"
+        ],
+        "title": "RegisterRequest"
+      },
+      "RegisterResponse": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "RegisterResponse"
+      },
+      "ResendCodeRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ResendCodeRequest"
+      },
+      "SendMessageRequest": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "SendMessageRequest"
+      },
+      "SendMessageResponse": {
+        "properties": {
+          "message": {
+            "$ref": "#/components/schemas/MessageRead"
+          },
+          "next_message_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Next Message At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "next_message_at"
+        ],
+        "title": "SendMessageResponse"
+      },
+      "SentInvitationRead": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserBrief"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "created_at"
+        ],
+        "title": "SentInvitationRead"
+      },
+      "SetTopicsRequest": {
+        "properties": {
+          "topic_ids": {
+            "items": {
+              "type": "integer",
+              "maximum": 32767.0,
+              "minimum": 1.0
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Topic Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_ids"
+        ],
+        "title": "SetTopicsRequest"
+      },
+      "TopicRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "TopicRead"
+      },
+      "UpdateProfileRequest": {
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 3,
+            "title": "Nickname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nickname"
+        ],
+        "title": "UpdateProfileRequest"
+      },
+      "UserBrief": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "title": "Id"
+          },
+          "nickname": {
+            "type": "string",
+            "title": "Nickname"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nickname",
+          "avatar_url"
+        ],
+        "title": "UserBrief"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerifyEmailRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "code"
+        ],
+        "title": "VerifyEmailRequest"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
