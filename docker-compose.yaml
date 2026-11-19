@@ -1,61 +1,91 @@
+name: dcampfire
 services:
   db:
     image: postgres:16
-    platform: linux/amd64
-    container_name: dcampfire_db
-    env_file:
-      - .env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-campfire}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python scripts/setup_local.py first}
+      POSTGRES_DB: ${POSTGRES_DB:-campfire}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
       timeout: 5s
-      retries: 10
-
-  app-dev:
-    profiles: ["dev"]
-    platform: linux/amd64
-    image: dcampfire-app-dev
-    container_name: dcampfire_app
-    env_file:
-      - .env
+      retries: 20
+    restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:v1.27.4
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+    environment:
+      MP_MAX_MESSAGES: 200
+    restart: unless-stopped
+  app-prod:
+    build:
+      context: .
+      target: prod
+    env_file: .env
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     ports:
-      - "8000:8000"
+      - "${API_BIND_HOST:-127.0.0.1}:${API_PORT:-8001}:8000"
+    volumes:
+      - media_data:/workspace/backend/media
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+  app-dev:
+    profiles: ["dev"]
+    build:
+      context: .
+      target: dev
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    ports:
+      - "127.0.0.1:8000:8000"
     volumes:
       - .:/workspace
     working_dir: /workspace/backend
-    command: tail -f /dev/null
-
-  app-prod:
-    profiles: ["prod"]
-    platform: linux/amd64
+    command: python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+  db-test:
+    profiles: ["test"]
+    image: postgres:16
+    environment:
+      POSTGRES_USER: campfire
+      POSTGRES_PASSWORD: local-tests-only
+      POSTGRES_DB: campfire_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campfire -d campfire_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+  test:
+    profiles: ["test"]
     build:
       context: .
-      dockerfile: Dockerfile
       target: prod
-    image: dcampfire-app-prod
-    container_name: dcampfire_app_prod
-    env_file:
-      - .env
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://campfire:local-tests-only@db-test:5432/campfire_test
+      SECRET_KEY: local-tests-only-not-for-real-accounts
     depends_on:
-      db:
+      db-test:
         condition: service_healthy
-    ports:
-      - "8001:8000"
-    volumes:
-      - media_data:/workspace/backend/media
-    restart: unless-stopped
-
+    command: python -m pytest -q -p no:cacheprovider
 volumes:
   postgres_data:
   media_data:

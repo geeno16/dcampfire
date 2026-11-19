@@ -34,4 +34,10 @@ COPY backend /workspace/backend
 
 WORKDIR /workspace/backend
 
+RUN useradd --uid 10001 --create-home campfire \
+    && mkdir -p /workspace/backend/media \
+    && chown -R campfire:campfire /workspace/backend/media
+
+USER campfire
+
 CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
