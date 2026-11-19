@@ -25,6 +25,7 @@ session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
 
 
 _AFTER_COMMIT = "after_commit"
+_AFTER_ROLLBACK = "after_rollback"
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ def discard_after_commit(session: AsyncSession) -> None:
 
 
 async def run_after_commit(session: AsyncSession) -> None:
+    session.info.pop(_AFTER_ROLLBACK, None)
     for callback in session.info.pop(_AFTER_COMMIT, []):
         try:
             await callback()
@@ -47,10 +49,29 @@ async def run_after_commit(session: AsyncSession) -> None:
             logger.exception("After-commit callback failed")
 
 
+def on_rollback(
+    session: AsyncSession, callback: Callable[[], Awaitable[None]]
+) -> None:
+    session.info.setdefault(_AFTER_ROLLBACK, []).append(callback)
+
+
+async def run_after_rollback(session: AsyncSession) -> None:
+    discard_after_commit(session)
+    for callback in session.info.pop(_AFTER_ROLLBACK, []):
+        try:
+            await callback()
+        except Exception:
+            logger.exception("After-rollback callback failed")
+
+
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with session_factory() as session:
-        async with session.begin():
-            yield session
+        try:
+            async with session.begin():
+                yield session
+        except BaseException:
+            await run_after_rollback(session)
+            raise
         await run_after_commit(session)
 
 

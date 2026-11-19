@@ -8,6 +8,7 @@ from src.common.config import (
     MESSAGES_PAGE_DEFAULT,
     MESSAGES_PAGE_MAX,
     IdPath,
+    IdRead,
 )
 from src.message.dependency import MessageServiceDependency
 from src.message.schema import (
@@ -16,7 +17,7 @@ from src.message.schema import (
     SendMessageResponse,
 )
 
-CursorQuery = Annotated[int | None, Query(ge=1, le=ID_MAX)]
+CursorQuery = Annotated[IdRead | None, Query(ge=1, le=ID_MAX)]
 
 message_router = APIRouter(prefix="/bonfires", tags=["Message"])
 

@@ -17,3 +17,4 @@ httpx==0.25.0
 ruff==0.15.2
 ty==0.0.32
 argon2-cffi==25.1.0
+Pillow==13.0.0

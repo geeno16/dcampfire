@@ -15,8 +15,8 @@ def _require(name: str) -> str:
 
 _SMTP_HOST = _require("SMTP_HOST")
 _SMTP_PORT = int(_require("SMTP_PORT"))
-_SMTP_USER = _require("SMTP_USER")
-_SMTP_PASSWORD = _require("SMTP_PASSWORD")
+_SMTP_USER = os.getenv("SMTP_USER") or None
+_SMTP_PASSWORD = os.getenv("SMTP_PASSWORD") or None
 _SMTP_FROM = _require("SMTP_FROM")
 
 
@@ -38,5 +38,7 @@ async def send_verification_code(email: str, code: str) -> None:
         port=_SMTP_PORT,
         username=_SMTP_USER,
         password=_SMTP_PASSWORD,
-        start_tls=True,
+        start_tls=os.getenv("SMTP_START_TLS", "true").lower() == "true",
+        use_tls=os.getenv("SMTP_USE_TLS", "false").lower() == "true",
+        timeout=10,
     )

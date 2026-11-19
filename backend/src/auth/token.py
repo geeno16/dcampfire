@@ -27,5 +27,5 @@ def decode_access_token(token: str) -> int | None:
             token, _SECRET_KEY, algorithms=[_ALGORITHM]
         )
         return int(payload["sub"])
-    except (JWTError, KeyError, ValueError):
+    except (JWTError, KeyError, ValueError, TypeError):
         return None

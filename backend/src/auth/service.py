@@ -2,6 +2,9 @@ import math
 import secrets
 from datetime import UTC, datetime
 
+import anyio
+from sqlalchemy import select
+
 from src.auth.schema import (
     AuthResponse,
     LoginRequest,
@@ -46,8 +49,10 @@ class AuthService:
         self.profiles = ProfileService(session)
 
     async def register(self, data: RegisterRequest) -> RegisterResponse:
-        user = await self._find_user(data.email)
-        password_hash = hash_secret(data.password)
+        user = await self._find_user(data.email, lock=True)
+        password_hash = await anyio.to_thread.run_sync(
+            hash_secret, data.password
+        )
         now = datetime.now(UTC)
 
         if user is None:
@@ -74,7 +79,7 @@ class AuthService:
     async def verify_email(
         self, data: VerifyEmailRequest
     ) -> AuthResponse:
-        user = await self._find_user(data.email)
+        user = await self._find_user(data.email, lock=True)
         code = None
         if user is not None and not user.email_verified:
             code = await self._find_code(user)
@@ -86,7 +91,9 @@ class AuthService:
         if code.attempts >= EMAIL_CODE_MAX_ATTEMPTS:
             raise UnprocessableError("CODE_ATTEMPTS_EXCEEDED")
 
-        if not verify_secret(data.code, code.code_hash):
+        if not await anyio.to_thread.run_sync(
+            verify_secret, data.code, code.code_hash
+        ):
             attempts = code.attempts + 1
             await self.codes.update(code.id, attempts=attempts)
             await self.session.commit()
@@ -100,7 +107,7 @@ class AuthService:
         return await self._auth_response(user)
 
     async def resend_code(self, data: ResendCodeRequest) -> None:
-        user = await self._find_user(data.email)
+        user = await self._find_user(data.email, lock=True)
         if user is None or user.email_verified:
             return
 
@@ -109,17 +116,23 @@ class AuthService:
 
     async def login(self, data: LoginRequest) -> AuthResponse:
         user = await self._find_user(data.email)
-        if user is None or not verify_secret(
-            data.password, user.password_hash
+        if user is None or not await anyio.to_thread.run_sync(
+            verify_secret, data.password, user.password_hash
         ):
             raise UnauthorizedError("INVALID_CREDENTIALS")
         if not user.email_verified:
             raise PermissionDeniedError("EMAIL_NOT_VERIFIED")
         return await self._auth_response(user)
 
-    async def _find_user(self, email: str) -> User | None:
-        users = await self.users.read(email=email)
-        return users[0] if users else None
+    async def _find_user(
+        self, email: str, *, lock: bool = False
+    ) -> User | None:
+        query = select(User).where(User.email == email)
+        if lock:
+            query = query.with_for_update().execution_options(
+                populate_existing=True
+            )
+        return await self.session.scalar(query)
 
     async def _find_code(self, user: User) -> EmailCode | None:
         codes = await self.codes.read(user_id=user.id)
@@ -144,7 +157,9 @@ class AuthService:
         code = _generate_code()
         now = datetime.now(UTC)
         values = {
-            "code_hash": hash_secret(code),
+            "code_hash": await anyio.to_thread.run_sync(
+                hash_secret, code
+            ),
             "attempts": 0,
             "sent_at": now,
             "expires_at": now + EMAIL_CODE_TTL,

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections import defaultdict
 from collections.abc import Iterable
@@ -19,7 +20,8 @@ class Connection(Protocol):
 
 
 class RealtimeHub:
-    def __init__(self) -> None:
+    def __init__(self, send_timeout: float = 1.0) -> None:
+        self._send_timeout = send_timeout
         self._connections: defaultdict[int, set[Connection]] = (
             defaultdict(set)
         )
@@ -41,23 +43,41 @@ class RealtimeHub:
     async def send(
         self, user_ids: Iterable[int], event: dict[str, Any]
     ) -> None:
-        for user_id in set(user_ids):
-            for websocket in list(self._connections.get(user_id, ())):
-                try:
-                    await websocket.send_json(event)
-                except Exception:
-                    logger.warning(
-                        "Dropping broken websocket of %s", user_id
-                    )
-                    self.disconnect(user_id, websocket)
+        await asyncio.gather(
+            *(
+                self._send_one(user_id, websocket, event)
+                for user_id in set(user_ids)
+                for websocket in list(
+                    self._connections.get(user_id, ())
+                )
+            )
+        )
+
+    async def _send_one(
+        self, user_id: int, websocket: Connection, event: dict[str, Any]
+    ) -> None:
+        try:
+            async with asyncio.timeout(self._send_timeout):
+                await websocket.send_json(event)
+        except Exception:
+            logger.warning("Dropping broken websocket of %s", user_id)
+            self.disconnect(user_id, websocket)
+            try:
+                async with asyncio.timeout(self._send_timeout):
+                    await websocket.close(code=1013, reason="RECONNECT")
+            except Exception:
+                logger.debug(
+                    "Socket already unavailable for %s", user_id
+                )
 
     async def close_user(self, user_id: int) -> None:
         for websocket in list(self._connections.pop(user_id, ())):
             try:
-                await websocket.close(
-                    code=ACCOUNT_DELETED_CLOSE_CODE,
-                    reason="ACCOUNT_DELETED",
-                )
+                async with asyncio.timeout(self._send_timeout):
+                    await websocket.close(
+                        code=ACCOUNT_DELETED_CLOSE_CODE,
+                        reason="ACCOUNT_DELETED",
+                    )
             except Exception:
                 logger.warning(
                     "Failed to close websocket of %s", user_id

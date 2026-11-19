@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Path as PathParam
+from pydantic import Field
 
 
 def _int(name: str, default: int) -> int:
@@ -61,4 +62,8 @@ ALBUM_TITLE_MAX_LENGTH = 512
 ALBUM_URL_MAX_LENGTH = 2048
 
 ID_MAX = 2**63 - 1
-IdPath = Annotated[int, PathParam(ge=1, le=ID_MAX)]
+IdRead = Annotated[int, Field(json_schema_extra={"format": "int64"})]
+IdPath = Annotated[
+    int,
+    PathParam(ge=1, le=ID_MAX, json_schema_extra={"format": "int64"}),
+]

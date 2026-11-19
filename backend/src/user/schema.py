@@ -13,6 +13,7 @@ from src.common.config import (
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
     USER_TOPICS_MAX,
+    IdRead,
 )
 from src.reference.schema import TopicId, TopicRead, unique_topic_ids
 
@@ -34,13 +35,13 @@ Password = Annotated[str, Field(max_length=PASSWORD_MAX_LENGTH)]
 
 
 class UserBrief(BaseModel):
-    id: int
+    id: IdRead
     nickname: str
     avatar_url: str | None
 
 
 class ProfileRead(BaseModel):
-    id: int
+    id: IdRead
     nickname: str
     email: str
     avatar_url: str | None

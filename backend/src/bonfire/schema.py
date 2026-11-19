@@ -15,6 +15,7 @@ from src.common.config import (
     BONFIRE_NAME_MAX_LENGTH,
     BONFIRE_NAME_MIN_LENGTH,
     BONFIRE_TOPICS_MAX,
+    IdRead,
 )
 from src.reference.schema import TopicId, TopicRead, unique_topic_ids
 from src.user.schema import UserBrief
@@ -79,11 +80,11 @@ class MemberRead(UserBrief):
 
 
 class BonfireCard(BaseModel):
-    id: int
+    id: IdRead
     name: str
     color: str
     is_open: bool
-    owner_id: int
+    owner_id: IdRead
     members_count: int
     topics: list[TopicRead]
 

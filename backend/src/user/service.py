@@ -1,13 +1,19 @@
 import re
 import uuid
+from io import BytesIO
 from pathlib import Path
 
 import anyio
 from fastapi import UploadFile
+from PIL import Image, UnidentifiedImageError
 
 from src.bonfire.repository import BonfireRepository
 from src.common.config import AVATAR_MAX_BYTES, MEDIA_ROOT
-from src.common.database import SessionDependency
+from src.common.database import (
+    SessionDependency,
+    on_commit,
+    on_rollback,
+)
 from src.common.exception import (
     NotFoundError,
     PermissionDeniedError,
@@ -32,10 +38,6 @@ from src.user.schema import (
 AVATAR_URL_PREFIX = "/api/v1/media/avatars"
 AVATAR_DIR = MEDIA_ROOT / "avatars"
 
-_IMAGE_SIGNATURES = {
-    b"\xff\xd8\xff": ".jpg",
-    b"\x89PNG\r\n\x1a\n": ".png",
-}
 _AVATAR_NAME = re.compile(r"^[0-9a-f]{32}\.(jpg|png)$")
 
 
@@ -60,6 +62,7 @@ def _invalid_avatar(message: str) -> UnprocessableError:
 
 class ProfileService:
     def __init__(self, session: SessionDependency) -> None:
+        self.session = session
         self.users = UserRepository(session)
         self.user_topics = UserTopicRepository(session)
         self.topics = TopicRepository(session)
@@ -88,9 +91,12 @@ class ProfileService:
     async def change_password(
         self, user: User, data: ChangePasswordRequest
     ) -> None:
-        self._check_password(user, data.current_password)
+        await self._check_password(user, data.current_password)
         await self.users.update(
-            user.id, password_hash=hash_secret(data.new_password)
+            user.id,
+            password_hash=await anyio.to_thread.run_sync(
+                hash_secret, data.new_password
+            ),
         )
 
     async def set_topics(
@@ -117,37 +123,37 @@ class ProfileService:
         if len(data) > AVATAR_MAX_BYTES:
             raise _invalid_avatar("File is too large")
 
-        extension = next(
-            (
-                ext
-                for signature, ext in _IMAGE_SIGNATURES.items()
-                if data.startswith(signature)
-            ),
-            None,
+        extension = await anyio.to_thread.run_sync(
+            _image_extension, data
         )
-        if extension is None:
-            raise _invalid_avatar(
-                "Only JPEG and PNG images are allowed"
-            )
+        await self.users.lock(user.id)
 
         name = f"{uuid.uuid4().hex}{extension}"
         await anyio.Path(AVATAR_DIR).mkdir(parents=True, exist_ok=True)
         await anyio.Path(AVATAR_DIR / name).write_bytes(data)
+        on_rollback(
+            self.session, lambda: self._remove_avatar_file(name)
+        )
 
         previous = user.avatar_path
         await self.users.update(user.id, avatar_path=name)
-        await self._remove_avatar_file(previous)
+        on_commit(
+            self.session, lambda: self._remove_avatar_file(previous)
+        )
         return await self.build(user)
 
     async def delete_avatar(self, user: User) -> None:
+        await self.users.lock(user.id)
         previous = user.avatar_path
         await self.users.update(user.id, avatar_path=None)
-        await self._remove_avatar_file(previous)
+        on_commit(
+            self.session, lambda: self._remove_avatar_file(previous)
+        )
 
     async def delete_account(
         self, user: User, data: DeleteAccountRequest
     ) -> None:
-        self._check_password(user, data.password)
+        await self._check_password(user, data.password)
         avatar = user.avatar_path
 
         for bonfire in await self.bonfires.read_by_member(user.id):
@@ -167,7 +173,9 @@ class ProfileService:
 
         await self.users.delete(user.id)
         self.realtime.disconnect_user(user.id)
-        await self._remove_avatar_file(avatar)
+        on_commit(
+            self.session, lambda: self._remove_avatar_file(avatar)
+        )
 
     def avatar_file(self, name: str) -> Path:
         path = AVATAR_DIR / name
@@ -175,10 +183,38 @@ class ProfileService:
             raise NotFoundError("AVATAR_NOT_FOUND")
         return path
 
-    def _check_password(self, user: User, password: str) -> None:
-        if not verify_secret(password, user.password_hash):
+    async def _check_password(self, user: User, password: str) -> None:
+        if not await anyio.to_thread.run_sync(
+            verify_secret, password, user.password_hash
+        ):
             raise PermissionDeniedError("WRONG_PASSWORD")
 
     async def _remove_avatar_file(self, name: str | None) -> None:
         if name:
             await anyio.Path(AVATAR_DIR / name).unlink(missing_ok=True)
+
+
+def _image_extension(data: bytes) -> str:
+    try:
+        with Image.open(BytesIO(data)) as image:
+            extension = {"JPEG": ".jpg", "PNG": ".png"}.get(
+                image.format or ""
+            )
+            if (
+                extension is None
+                or image.width * image.height > 20_000_000
+            ):
+                raise ValueError("Unsupported image")
+            image.verify()
+        with Image.open(BytesIO(data)) as image:
+            image.load()
+        return extension
+    except (
+        UnidentifiedImageError,
+        OSError,
+        ValueError,
+        Image.DecompressionBombError,
+    ) as exc:
+        raise _invalid_avatar(
+            "Upload a valid JPEG or PNG image (up to 20 megapixels)"
+        ) from exc

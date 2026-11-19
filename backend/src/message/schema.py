@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, StringConstraints
 
-from src.common.config import MESSAGE_MAX_LENGTH
+from src.common.config import MESSAGE_MAX_LENGTH, IdRead
 from src.user.schema import UserBrief
 
 
@@ -19,8 +19,8 @@ class SendMessageRequest(BaseModel):
 
 
 class MessageRead(BaseModel):
-    id: int
-    bonfire_id: int
+    id: IdRead
+    bonfire_id: IdRead
     author: UserBrief | None
     body: str
     created_at: datetime
