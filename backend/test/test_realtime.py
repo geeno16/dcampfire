@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
 
@@ -68,6 +69,41 @@ async def test_hub_close_user():
 
     assert socket.closed_with == ACCOUNT_DELETED_CLOSE_CODE
     assert realtime.connections(1) == 0
+
+
+@pytest.mark.asyncio
+async def test_slow_socket_does_not_block_other_recipients():
+    delivered = asyncio.Event()
+
+    class SlowSocket(FakeSocket):
+        async def send_json(
+            self, data: dict, mode: str = "text"
+        ) -> None:
+            await asyncio.Event().wait()
+
+    class ReadySocket(FakeSocket):
+        async def send_json(
+            self, data: dict, mode: str = "text"
+        ) -> None:
+            await super().send_json(data, mode)
+            delivered.set()
+
+    realtime = RealtimeHub(send_timeout=0.2)
+    slow, ready = SlowSocket(), ReadySocket()
+    realtime.connect(1, slow)
+    realtime.connect(2, ready)
+    sending = asyncio.create_task(
+        realtime.send([1, 2], {"type": "ping"})
+    )
+    try:
+        await asyncio.wait_for(delivered.wait(), timeout=0.1)
+        assert not sending.done()
+        await asyncio.wait_for(sending, timeout=0.5)
+        assert realtime.connections(1) == 0
+        assert realtime.connections(2) == 1
+        assert slow.closed_with == 1013
+    finally:
+        sending.cancel()
 
 
 @pytest.mark.asyncio

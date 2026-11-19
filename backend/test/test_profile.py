@@ -1,8 +1,10 @@
 from datetime import UTC, datetime
+from io import BytesIO
 from pathlib import Path
 
 import pytest
 from httpx import AsyncClient
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.common.hashing import hash_secret
@@ -11,8 +13,15 @@ from src.user import service as profile_service
 from src.user.repository import UserRepository
 from test.conftest import USER_EMAIL, USER_PASSWORD
 
-PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 16
-JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 16
+
+def image_bytes(format: str) -> bytes:
+    output = BytesIO()
+    Image.new("RGB", (12, 12), "orange").save(output, format=format)
+    return output.getvalue()
+
+
+PNG = image_bytes("PNG")
+JPEG = image_bytes("JPEG")
 
 
 @pytest.fixture(autouse=True)
